@@ -1,0 +1,499 @@
+let currentSmeltSlotIndex = -1;
+let currentSmeltFilter = 'all';
+let currentRecipePage = 0;
+const RECIPE_RARITY_ORDER = ["T4", "T3", "T2", "T1", "T0", "PET"];
+
+const RARITY_COLORS = {
+    'T4': '#333333',
+    'T3': '#e74c3c',
+    'T2': '#3498db',
+    'T1': '#8e44ad',
+    'T0': '#f1c40f',
+    'SP': '#f1c40f',
+    'PET': '#ff954f'
+};
+
+function renderShopSmelt() {
+    const container = document.getElementById("shopContentArea");
+    container.innerHTML = `
+        <div style="width:100%; text-align:center; color:#666; font-size:0.9rem; margin-bottom:10px; white-space:nowrap; -webkit-text-stroke: 1px white; paint-order: stroke fill; font-weight: bold;">請從背包中選擇2-4項物品合成</div>
+        <div class="smelt-grid-container" id="smeltContainer" style="margin-top:5px;"></div>
+        <div style="width:100%; text-align:center; color:#888; font-size:0.6rem; margin-top:15px; white-space:nowrap; -webkit-text-stroke: 1px white; paint-order: stroke fill; font-weight: bold;">※ 熔煉成功機率：普通 60% | 精良 70% | 稀有 80% | 史詩 90% | 傳說 100%</div>
+        <div style="display:flex; gap:10px; margin-top:5px; justify-content:center;">
+            <button class="btn-main" style="margin:0; background:#8e44ad; color:white;" onclick="showRecipes()">合成公式</button>
+            <button class="btn-main" style="margin:0;" onclick="initSmelt()">開始合成</button>
+        </div>
+    `;
+    const grid = document.getElementById("smeltContainer");
+    
+    for(let i=0; i<4; i++) {
+        const slot = document.createElement("div");
+        slot.className = "smelt-slot" + (smeltSlots[i] ? " filled" : "");
+        if (smeltSlots[i]) {
+            slot.innerHTML = `
+                <img src="images/items/${smeltSlots[i].img}" style="width:60%; height:60%; object-fit:contain;" onerror="this.src='images/ui/icon_core.PNG'">
+                <div style="font-size:0.8rem; font-weight:bold;">${smeltSlots[i].name}</div>
+            `;
+        } else {
+            slot.innerHTML = `<div class="smelt-plus">+</div>`;
+        }
+        slot.onclick = () => {
+            currentSmeltSlotIndex = i;
+            document.getElementById("smeltSelectModal").style.display = "flex";
+            renderSmeltInventory();
+        };
+        grid.appendChild(slot);
+    }
+}
+
+function switchSmeltFilter(filter) {
+    currentSmeltFilter = filter;
+    renderSmeltInventory();
+}
+
+function renderSmeltInventory() {
+    const modalBody = document.querySelector("#smeltSelectModal .modal-body");
+    
+    let filterContainer = document.getElementById("smeltFilterTabs");
+    if(!filterContainer) {
+        filterContainer = document.createElement("div");
+        filterContainer.id = "smeltFilterTabs";
+        filterContainer.className = "inventory-tabs";
+        filterContainer.style.marginTop = "0";
+        modalBody.insertBefore(filterContainer, modalBody.firstChild);
+    }
+
+    filterContainer.innerHTML = `
+        <button class="tab-btn ${currentSmeltFilter === 'all' ? 'active' : ''}" onclick="switchSmeltFilter('all')">全部</button>
+        <button class="tab-btn ${currentSmeltFilter === 'fragment' ? 'active' : ''}" onclick="switchSmeltFilter('fragment')">素材</button>
+        <button class="tab-btn ${currentSmeltFilter === 'product' ? 'active' : ''}" onclick="switchSmeltFilter('product')">成品</button>
+    `;
+
+    const grid = document.getElementById("smeltInventoryGrid");
+    grid.innerHTML = "";
+    
+    gameState.inventory.forEach((item, index) => {
+        if(!item) return;
+        if(currentSmeltFilter === 'fragment' && item.type !== 'fragment') return;
+        if(currentSmeltFilter === 'product' && item.type !== 'product') return;
+
+        const usedCount = smeltSlots.filter(s => s && s.id === item.id).length;
+        const availableCount = item.count - usedCount;
+        
+        if (availableCount <= 0) return;
+
+        const card = document.createElement("div");
+        card.className = "pokedex-card";
+        const color = RARITY_COLORS[item.rarity] || '#333';
+        
+        card.style.border = `2px solid ${color}`;
+
+        card.innerHTML = `
+            <img src="images/items/${item.img}" class="pokedex-img" onerror="this.src='images/ui/icon_core.PNG'">
+            <div class="pokedex-title" style="color:${color}">${item.name}</div>
+            <div class="inv-count-badge">x${availableCount}</div>
+        `;
+        card.onclick = () => selectSmeltItem(index);
+        grid.appendChild(card);
+    });
+}
+
+function selectSmeltItem(invIndex) {
+    const item = gameState.inventory[invIndex];
+    if(item) {
+        smeltSlots[currentSmeltSlotIndex] = { ...item, originalIndex: invIndex };
+        document.getElementById("smeltSelectModal").style.display = "none";
+        renderShop();
+    }
+}
+
+function renderSmelting() {
+    currentShopTab = 'smelt';
+    renderShop();
+}
+
+function filterInventory(type, btn) {
+    currentInvTab = type;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderInventory();
+}
+
+function renderInventory() {
+    switchScreen("screen-inventory");
+    const container = document.getElementById("inventoryContainer");
+    container.innerHTML = "";
+    container.className = "inventory-grid-compact";
+    
+    let filteredItems = gameState.inventory.map((item, index) => ({...item, originalIndex: index}));
+    
+    if (currentInvTab === 'fragment') {
+        filteredItems = filteredItems.filter(item => item && item.type === 'fragment');
+        filteredItems.forEach(item => {
+            renderInventoryItem(container, item, item.originalIndex);
+        });
+    } else if (currentInvTab === 'item') {
+        filteredItems = filteredItems.filter(item => item && item.type === 'product');
+        filteredItems.forEach(item => {
+            renderInventoryItem(container, item, item.originalIndex);
+        });
+    } else {
+        const currentCapacity = gameState.user.inventorySlots || 5;
+        const maxSlots = 100;
+        
+        for(let i=0; i<currentCapacity; i++) {
+            if(i < filteredItems.length && filteredItems[i]) {
+                renderInventoryItem(container, filteredItems[i], filteredItems[i].originalIndex);
+            } else {
+                const card = document.createElement("div");
+                card.className = "pokedex-card";
+                card.style.opacity = "0.5";
+                card.innerHTML = `<div style="font-size:0.8rem; color:#ccc; margin-top:20px;">${i+1}</div>`;
+                container.appendChild(card);
+            }
+        }
+        
+        if (currentCapacity < maxSlots) {
+             const card = document.createElement("div");
+             card.className = "pokedex-card";
+             card.style.background = "#f9f9f9";
+             card.style.border = "2px dashed #2ecc71";
+             card.style.cursor = "pointer";
+             card.innerHTML = `
+                <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;">
+                    <svg viewBox="0 0 24 24" class="pulse-plus-icon" style="width:35px; height:35px; fill:none; stroke:#2ecc71; stroke-width:3; stroke-linecap:round; stroke-linejoin:round;">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                </div>
+             `;
+             card.onclick = () => buyInventorySlot();
+             container.appendChild(card);
+        }
+    }
+}
+
+function renderInventoryItem(container, item, realIndex) {
+    const card = document.createElement("div");
+    card.className = "pokedex-card";
+    const color = RARITY_COLORS[item.rarity] || '#333';
+    
+    card.style.border = `2px solid ${color}`;
+    card.innerHTML = `
+        <img src="images/items/${item.img}" class="pokedex-img" onerror="this.src='images/ui/icon_core.PNG'">
+        <div class="pokedex-title" style="color:${color}">${item.name}</div>
+        <div class="inv-count-badge">x${item.count}</div>
+        <button class="btn-inv-delete" onclick="promptSellItem(event, ${realIndex})" style="background:none; border:none; padding:0; width:25px; height:25px; display:flex; align-items:center; justify-content:center; z-index:10;">
+            <img src="images/ui/icon_coin.PNG" style="width:100%; height:100%; object-fit:contain;" onerror="this.src='images/ui/icon_core.PNG'">
+        </button>
+    `;
+    card.onclick = (e) => {
+        if(!e.target.closest('.btn-inv-delete')) {
+            showItemDetail(realIndex);
+        }
+    };
+    container.appendChild(card);
+}
+
+async function buyInventorySlot() {
+    const cost = 50;
+    if (await confirm(`是否花費 ${cost} 金幣擴充 1 個背包欄位？`)) {
+        if (gameState.user.coins < cost) {
+            alert("金幣不足！");
+            return;
+        }
+        gameState.user.coins -= cost;
+        gameState.user.inventorySlots++;
+        saveGame();
+        renderInventory();
+        alert("擴充成功！");
+    }
+}
+
+function showItemDetail(index) {
+    const item = gameState.inventory[index];
+    if(!item) return;
+    
+    const modal = document.getElementById("detailModal");
+    const header = document.getElementById("detailModalHeader");
+    const title = document.getElementById("detailModalTitle");
+    const body = document.getElementById("detailModalBody");
+    
+    if(item.type === 'fragment') {
+        title.innerText = "素材";
+    } else {
+        title.innerText = "成品";
+    }
+    header.style.color = "white";
+
+    const rarityColor = RARITY_COLORS[item.rarity] || '#2c3e50';
+    header.style.background = rarityColor;
+
+    body.innerHTML = `
+        <img src="images/items/${item.img}" style="width:120px; height:120px; object-fit:contain; margin-bottom:15px; filter: drop-shadow(0 0 15px ${rarityColor});" onerror="this.src='images/ui/icon_core.PNG'">
+        <div style="font-size:1.2rem; font-weight:bold; color:var(--primary-blue); margin-bottom: 5px;">${item.name}</div>
+        <div style="font-size:0.9rem; color:${rarityColor}; margin-bottom:10px; font-weight:bold;">${RARITY_MAP[item.rarity]}</div>
+        <div style="color:#555; text-align:left; background:#f9f9f9; padding:10px; border-radius:8px;">${item.desc}</div>
+    `;
+    
+    modal.style.display = "flex";
+    updateCoreButtonVisibility();
+}
+
+function promptSellItem(event, index) {
+    if(event) event.stopPropagation();
+    itemToDeleteIndex = index;
+    const item = gameState.inventory[index];
+    
+    const modal = document.getElementById("deleteModal");
+    document.getElementById("deleteItemName").innerText = item.name;
+    document.getElementById("deleteItemImg").src = "images/items/" + item.img;
+    
+    const slider = document.getElementById("deleteSlider");
+    slider.min = 1;
+    slider.max = item.count;
+    slider.value = 1;
+    
+    updateSellPrice(1, 10);
+    
+    slider.oninput = function() {
+        updateSellPrice(parseInt(this.value), 10);
+    };
+
+    const confirmBtn = document.getElementById("btnConfirmSell");
+    if(confirmBtn) {
+        confirmBtn.onclick = confirmSell;
+    }
+    
+    modal.style.display = "flex";
+    updateCoreButtonVisibility();
+}
+
+function updateSellPrice(count, pricePerUnit) {
+    document.getElementById("delCountVal").innerText = count;
+    document.getElementById("delTotalVal").innerText = count * pricePerUnit;
+}
+
+function confirmSell() {
+    if (itemToDeleteIndex === -1) return;
+    const slider = document.getElementById("deleteSlider");
+    const count = parseInt(slider.value);
+    const item = gameState.inventory[itemToDeleteIndex];
+
+    if(count < 1 || count > item.count) {
+        alert("無效的數量！");
+        return;
+    }
+
+    const sellPrice = 10;
+    const totalGain = sellPrice * count;
+    gameState.user.coins += totalGain;
+
+    if (count >= item.count) {
+        gameState.inventory.splice(itemToDeleteIndex, 1);
+    } else {
+        item.count -= count;
+    }
+    saveGame();
+    renderInventory();
+    document.getElementById("deleteModal").style.display = "none";
+    updateCoreButtonVisibility();
+    alert(`成功出售 ${count} 個 ${item.name}，獲得 ${totalGain} 金幣！`);
+}
+
+function initSmelt() {
+    const filledCount = smeltSlots.filter(s => s !== null).length;
+    if (filledCount < 2) return alert("請最少放入 2 種材料！");
+    document.getElementById("smeltConfirmModal").style.display = "flex";
+    updateCoreButtonVisibility();
+}
+
+function executeSmelt() {
+    document.getElementById("smeltConfirmModal").style.display = "none";
+    
+    for (let i = 0; i < smeltSlots.length; i++) {
+        const slotItem = smeltSlots[i];
+        if (slotItem) {
+            const existing = gameState.inventory.find(inv => inv.id === slotItem.id && inv.count > 0);
+            if (!existing) {
+                alert("背包中已無此素材（可能已被出售），無法進行熔煉！");
+                smeltSlots = [null, null, null, null];
+                renderShop();
+                updateCoreButtonVisibility();
+                return;
+            }
+        }
+    }
+
+    const inputIds = smeltSlots.filter(s => s !== null).map(s => s.id).sort();
+    
+    smeltSlots.forEach(slotItem => {
+        if(slotItem) {
+            const targetItem = gameState.inventory.find(i => i.id === slotItem.id && i.count > 0);
+            if(targetItem) {
+                targetItem.count--;
+            }
+        }
+    });
+    gameState.inventory = gameState.inventory.filter(i => i.count > 0);
+    
+    let resultItem = null;
+    let isAsh = true;
+    let isPet = false;
+
+    for (let i = 0; i < MASTER_ITEMS.length; i++) {
+        const item = MASTER_ITEMS[i];
+        if (item.recipe) {
+            const recipeIds = [...item.recipe].sort();
+            if (JSON.stringify(inputIds) === JSON.stringify(recipeIds)) {
+                
+                const successRates = {
+                    "T0": 1.0,
+                    "T1": 0.9,
+                    "T2": 0.8,
+                    "T3": 0.7,
+                    "T4": 0.6,
+                    "SP": 1.0
+                };
+                
+                const rate = successRates[item.rarity] !== undefined ? successRates[item.rarity] : 1.0;
+                
+                if (Math.random() <= rate) {
+                    resultItem = item;
+                    isAsh = false;
+                    if (item.type === 'pet') isPet = true;
+                }
+                
+                break;
+            }
+        }
+    }
+
+    if (isAsh) {
+        resultItem = MASTER_ITEMS.find(i => i.id === 'f_001');
+    }
+
+    if (isPet) {
+        if (!gameState.pets.includes(resultItem.id)) {
+            gameState.pets.push(resultItem.id);
+            if(!gameState.collectionDates) gameState.collectionDates = {};
+            gameState.collectionDates[resultItem.id] = new Date().getTime();
+            
+            showSmeltResult(resultItem, `合成成功！解鎖新龍魄靈獸：${resultItem.name}`);
+        } else {
+            showSmeltResult(resultItem, `合成成功！但你已經擁有 ${resultItem.name}，獲得 5000 金幣補償。`);
+            gameState.user.coins += 5000;
+        }
+    } else {
+        const existing = gameState.inventory.find(i => i.id === resultItem.id);
+        if (existing) {
+            existing.count++;
+        } else {
+            gameState.inventory.push({ ...resultItem, count: 1 });
+        }
+        if (isAsh) {
+            showSmeltResult(resultItem, "合成失敗！獲得：灰燼殘渣");
+        } else {
+            showSmeltResult(resultItem, `合成成功！獲得：${resultItem.name}`);
+        }
+    }
+
+    saveGame();
+    smeltSlots = [null, null, null, null];
+    renderShop();
+    updateCoreButtonVisibility();
+}
+
+function showSmeltResult(item, message) {
+    const modal = document.getElementById("detailModal");
+    const header = document.getElementById("detailModalHeader");
+    const title = document.getElementById("detailModalTitle");
+    const body = document.getElementById("detailModalBody");
+
+    title.innerText = "合成結果";
+    
+    const rarityColor = (item && item.rarity && RARITY_COLORS[item.rarity]) ? RARITY_COLORS[item.rarity] : '#2c3e50';
+    header.style.background = rarityColor;
+    header.style.color = "white";
+
+    body.innerHTML = `
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:10px;">
+            <img src="images/items/${item.img}" style="width:120px; height:120px; object-fit:contain; margin-bottom:15px; filter: drop-shadow(0 0 20px ${rarityColor});" onerror="this.src='images/ui/icon_core.PNG'">
+            <div style="font-size:1.1rem; font-weight:bold; color:var(--primary-blue); text-align:center; line-height:1.5;">${message}</div>
+        </div>
+    `;
+
+    modal.style.display = "flex";
+    updateCoreButtonVisibility();
+}
+
+function showRecipes() {
+    document.getElementById("recipeModal").style.display = "flex";
+    currentRecipePage = 0;
+    renderRecipePage();
+    updateCoreButtonVisibility();
+}
+
+function renderRecipePage() {
+    const body = document.getElementById("recipeListBody");
+    body.scrollTop = 0;
+    body.innerHTML = "";
+    
+    const key = RECIPE_RARITY_ORDER[currentRecipePage];
+    let items = [];
+    let displayTitle = "";
+    let displayColor = RARITY_COLORS[key] || '#333';
+
+    if (key === 'PET') {
+        items = MASTER_ITEMS.filter(i => i.type === 'pet' && i.recipe);
+        displayTitle = "【龍魄靈獸】";
+    } else {
+        items = MASTER_ITEMS.filter(i => i.rarity === key && i.recipe);
+        displayTitle = RARITY_MAP[key];
+    }
+    
+    const pageTitle = document.createElement("div");
+    
+    pageTitle.style.cssText = `text-align:center; font-size:1.5rem; color:${displayColor}; margin:10px 0 20px 0; font-weight:bold;`;
+    pageTitle.innerText = displayTitle;
+    body.appendChild(pageTitle);
+
+    if (items.length === 0) {
+        const noData = document.createElement("div");
+        noData.style.textAlign = "center";
+        noData.style.color = "#999";
+        noData.innerText = "暫無配方記錄";
+        body.appendChild(noData);
+    } else {
+        items.forEach(item => {
+            const row = document.createElement("div");
+            row.style.cssText = "display:flex; align-items:center; padding:15px; border-bottom:1px solid #eee; gap:15px; background:#fff; margin-bottom:10px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.05); width: 100%; max-width: 400px; margin-left: auto; margin-right: auto; box-sizing: border-box;";
+            
+            const recipeNames = item.recipe.map(rid => {
+                const material = MASTER_ITEMS.find(m => m.id === rid);
+                return material ? material.name : rid;
+            }).join(" + ");
+            
+            const nameColor = RARITY_COLORS[item.rarity] || '#333';
+
+            row.innerHTML = `
+                <img src="images/items/${item.img}" style="width:50px; height:50px; object-fit:contain; flex-shrink: 0;">
+                <div style="flex:1; min-width: 0;">
+                    <div style="font-weight:bold; color:${nameColor}; font-size:1.1rem;">${item.name}</div>
+                    <div style="font-size:0.9rem; color:#555; margin-top:5px; word-wrap: break-word;">公式: ${recipeNames}</div>
+                </div>
+            `;
+            body.appendChild(row);
+        });
+    }
+}
+
+function nextRecipePage() {
+    currentRecipePage = (currentRecipePage + 1) % RECIPE_RARITY_ORDER.length;
+    renderRecipePage();
+}
+
+function prevRecipePage() {
+    currentRecipePage = (currentRecipePage - 1 + RECIPE_RARITY_ORDER.length) % RECIPE_RARITY_ORDER.length;
+    renderRecipePage();
+}

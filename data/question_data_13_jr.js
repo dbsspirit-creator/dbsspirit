@@ -11,9 +11,9 @@ if (typeof window.questionsDB["p_liuguo"] === 'undefined') {
 }
 
 window.questionsDB["p_liuguo"].title = "《六國論》";
-window.questionsDB["p_liuguo"].img = "dragon_13.WEBP";
+window.questionsDB["p_liuguo"].img = "dragon_13.webp.png";
 window.questionsDB["p_liuguo"].content = `六國論 蘇洵
-  
+
  	六國破滅，非兵不利，戰不善，弊在賂秦。賂秦而力虧，破滅之道也。或曰：「六國互喪，率賂秦耶？」曰：「不賂者以賂者喪。」蓋失強援，不能獨完，故曰「弊在賂秦」也。
 
 	秦以攻取之外，小則獲邑，大則得城，較秦之所得與戰勝而得者，其實百倍；諸侯之所亡與戰敗而亡者，其實亦百倍。則秦之所大欲，諸侯之所大患，固不在戰矣。思厥先祖父，暴霜露，斬荊棘，以有尺寸之地。子孫視之不甚惜，舉以予人，如棄草芥。今日割五城，明日割十城，然後得一夕安寢；起視四境，而秦兵又至矣。然則諸侯之地有限，暴秦之欲無厭，奉之彌繁，侵之愈急，故不戰而強弱勝負已判矣。至於顛覆，理固宜然。古人云：「以地事秦，猶抱薪救火，薪不盡，火不滅。」此言得之。

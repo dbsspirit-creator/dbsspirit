@@ -11,9 +11,9 @@ if (typeof window.questionsDB["p_yueyang"] === 'undefined') {
 }
 
 window.questionsDB["p_yueyang"].title = "《岳陽樓記》";
-window.questionsDB["p_yueyang"].img = "dragon_11.WEBP";
+window.questionsDB["p_yueyang"].img = "dragon_11.webp.png";
 window.questionsDB["p_yueyang"].content = `岳陽樓記 范仲淹
-  
+
  	慶曆四年春，滕子京謫守巴陵郡。越明年，政通人和，百廢具興。乃重修岳陽樓，增其舊制，刻唐賢、今人詩賦於其上；屬予作文以記之。
 	予觀夫巴陵勝狀，在洞庭一湖。銜遠山，吞長江，浩浩湯湯，橫無際涯；朝暉夕陰，氣象萬千。此則岳陽樓之大觀也，前人之述備矣。然則北通巫峽，南極瀟湘，遷客騷人，多會於此，覽物之情，得無異乎？
 	若夫霪雨霏霏，連月不開；陰風怒號，濁浪排空；日星隱耀，山岳潛形；商旅不行，檣傾楫摧；薄暮冥冥，虎嘯猿啼。登斯樓也，則有去國懷鄉，憂讒畏譏，滿目蕭然，感極而悲者矣。

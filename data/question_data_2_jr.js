@@ -7,9 +7,9 @@ if (typeof window.questionsDB["p_denglou"] === 'undefined') {
 }
 
 window.questionsDB["p_denglou"].title = "《登樓》";
-window.questionsDB["p_denglou"].img = "dragon_2.WEBP";
+window.questionsDB["p_denglou"].img = "dragon_2.webp.png";
 window.questionsDB["p_denglou"].content = `登樓 杜甫
- 
+
 花近高樓傷客心，萬方多難此登臨。
 錦江春色來天地，玉壘浮雲變古今。
 北極朝廷終不改，西山寇盜莫相侵。

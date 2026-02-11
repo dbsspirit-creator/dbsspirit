@@ -97,7 +97,7 @@ function initGame(modeOrDifficulty) {
     if (mode === 'single') {
         gameState.currentDragon = (db[pendingSingleChapterKey] && db[pendingSingleChapterKey].img) ? db[pendingSingleChapterKey].img : "dragon_unknown.PNG";
     } else {
-        gameState.currentDragon = "dragon_mix.webp.png";
+        gameState.currentDragon = "dragon_mix.webp";
     }
 
     const bossImg = document.getElementById("bossImage");

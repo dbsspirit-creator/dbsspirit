@@ -6,7 +6,7 @@ let achievementQueue = [];
 const HELP_CONTENT = `
     <div style="text-align:center; font-weight:bold; font-size:1.1rem; margin-bottom:10px;">歡迎來到拔萃之魂的試煉世界。</div>
     <p>既然重生於此，你手中的十二篇古籍便是你馴化惡龍的唯一利器。這條路註定佈滿荊棘，唯有智者方能登頂⋯⋯</p>
-
+    
     <div style="height: 1px; background: linear-gradient(90deg, transparent, var(--primary-blue), transparent); opacity: 0.4; margin: 25px 0;"></div>
 
     <h3 style="color:var(--primary-blue); margin:10px 0 5px 0;">生存與代價⏳</h3>
@@ -52,7 +52,7 @@ function getFormattedDate(timestamp) {
     const mins = d.getMinutes().toString().padStart(2, '0');
     const ampm = hours >= 12 ? "下午" : "上午";
     if (hours > 12) hours -= 12;
-    if (hours === 0) hours = 12;
+    if (hours === 0) hours = 12; 
     return `${year}年${month}月${day}日${ampm}${hours}時${mins}分`;
 }
 
@@ -85,32 +85,34 @@ function switchScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     const target = document.getElementById(id);
     if(target) target.classList.add('active');
-
+    
     if (id === 'screen-menu') {
         smeltSlots = [null, null, null, null];
     }
     updateCoreButtonVisibility();
+    if (typeof updateGuideForScreen === 'function') {
+        updateGuideForScreen(id);
+    }
 
     if (id === 'screen-game') {
         if(typeof resizeCanvas === 'function') resizeCanvas();
         updateBars();
-        return;
+        return; 
     }
-
+    
     if (id === 'screen-result') {
-        return;
+        return; 
     }
 
     if (typeof playMusic === 'function') {
         if (id === 'screen-daily') playMusic('bgm_daily');
         else if (id === 'screen-shop') playMusic('bgm_store');
         else if (id === 'screen-inventory') playMusic('bgm_inventory');
-        else if (id === 'screen-smelt') playMusic('bgm_smelt');
         else if (id === 'screen-pet') playMusic('bgm_pet');
         else if (id === 'screen-pokedex') playMusic('bgm_pokedex');
         else if (id === 'screen-achievements') playMusic('bgm_achievements');
         else {
-
+            
             playMusic('theme');
         }
     }
@@ -121,7 +123,7 @@ function switchScreen(id) {
 function updateUserDisplay() {
     if(!gameState || !gameState.user) return;
     const u = gameState.user;
-
+    
     const els = {
         name: document.getElementById("menuName"),
         cls: document.getElementById("menuClass"),
@@ -136,47 +138,31 @@ function updateUserDisplay() {
         gameLv: document.getElementById("gameLevelNum")
     };
 
-    const isNewFormat = u.name && u.name.indexOf('/') !== -1;
-
-    if(els.name) {
-        if (isNewFormat) {
-             const container = els.name.parentElement;
-             if(container && (container.tagName === 'SPAN' || container.tagName === 'DIV')) {
-                 container.innerHTML = `<strong id="menuName">${u.name}</strong>`;
-             } else {
-                 els.name.innerText = u.name;
-             }
-        } else {
-             els.name.innerText = u.name;
-             if(els.cls) els.cls.innerText = u.class;
-        }
-    }
+    if(els.name) els.name.innerText = u.name;
+    if(els.cls) els.cls.innerText = u.class;
     if(els.lv) els.lv.innerText = u.level;
     if(els.title) els.title.innerText = u.title;
     if(els.xp) els.xp.innerText = u.xp;
-
+    
     if(els.xpBar) {
         const xpPercent = (u.xp / GAME_CONFIG.MAX_XP) * 100;
         els.xpBar.style.width = xpPercent + "%";
     }
-
+    
     if(els.energy) els.energy.innerText = u.energy;
     if(els.energyBar) els.energyBar.style.width = u.energy + "%";
-
-    if(els.gameUser) {
-        if(isNewFormat) els.gameUser.innerText = u.name;
-        else els.gameUser.innerText = `${u.name} (${u.class})`;
-    }
+    
+    if(els.gameUser) els.gameUser.innerText = `${u.name} (${u.class})`;
     if(els.gameTitle) els.gameTitle.innerText = u.title;
     if(els.gameLv) els.gameLv.innerText = u.level;
 }
 
 function updateBars() {
     if(!gameState || !gameState.user) return;
-
+    
     const xpPercent = (gameState.user.xp / GAME_CONFIG.MAX_XP) * 100;
     const hpPercent = gameState.user.hp;
-
+    
     const elXpBar = document.getElementById("xpBar");
     const elXpText = document.getElementById("xpText");
     const elHpBar = document.getElementById("hpBar");
@@ -186,13 +172,13 @@ function updateBars() {
 
     if(elXpBar) elXpBar.style.width = xpPercent + "%";
     if(elXpText) elXpText.innerText = `${gameState.user.xp}/${GAME_CONFIG.MAX_XP}`;
-
+    
     if(elHpBar) {
         elHpBar.style.width = hpPercent + "%";
         elHpBar.style.background = hpPercent > 30 ? "var(--hp-green)" : "var(--hp-red)";
     }
     if(elHpText) elHpText.innerText = `${gameState.user.hp}/100`;
-
+    
     if(elEnergyBar) elEnergyBar.style.width = gameState.user.energy + "%";
     if(elEnergyText) elEnergyText.innerText = `${gameState.user.energy}/100`;
 }
@@ -200,11 +186,11 @@ function updateBars() {
 function showHelp() {
     const modal = document.getElementById("helpModal");
     const body = document.getElementById("helpBody");
-
+    
     if(body) {
         body.innerHTML = HELP_CONTENT;
     }
-
+    
     modal.style.display = "flex";
     updateCoreButtonVisibility();
 }

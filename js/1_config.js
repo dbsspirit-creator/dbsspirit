@@ -119,7 +119,7 @@ const DAILY_QUESTS = [
 ];
 
 const ASSETS_TO_LOAD = [
-    'images/ui/banner.jpg',
+    'images/ui/banner.PNG',
     'images/bg/login_bg.jpg',
     'images/ui/loading_icon.PNG',
     'images/ui/btn_setting.PNG',
@@ -135,12 +135,11 @@ const ASSETS_TO_LOAD = [
     'images/ui/btn_daily.PNG',
     'images/ui/btn_store.PNG',
     'images/ui/btn_inventory.PNG',
-    'images/ui/btn_smelt.PNG',
     'images/ui/btn_pet.PNG',
     'images/ui/icon_coin.PNG',
     'images/items/pet_unknown.PNG',
-    'images/dragons/dragon_unknown.jpg',
-    'images/dragons/dragon_mix.jpg',
+    'images/dragons/dragon_unknown.PNG',
+    'images/dragons/dragon_mix.PNG',
     'images/results/img_perfect.PNG',
     'images/results/img_success.PNG',
     'images/results/img_defeat.PNG',

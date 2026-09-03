@@ -1,3 +1,42 @@
+function addDailyTaskProgress(taskId, amount = 1, uniqueKey = "") {
+    const task = gameState.dailyTasks.find(t => t.id === taskId);
+    const config = DAILY_QUESTS.find(q => q.id === taskId);
+    if (!task || !config || task.claimed || task.progress >= config.target) return;
+
+    if (uniqueKey) {
+        if (!Array.isArray(task.completedKeys)) task.completedKeys = [];
+        if (task.completedKeys.includes(uniqueKey)) return;
+        task.completedKeys.push(uniqueKey);
+    }
+
+    task.progress = Math.min(config.target, (task.progress || 0) + amount);
+    task.complete = task.progress >= config.target;
+}
+
+function updateDailyTasksAfterBattle(isFail, isPerfect) {
+    if (isFail) return;
+
+    if (gameState.mode === 'mix') {
+        addDailyTaskProgress(5);
+        return;
+    }
+
+    if (!isPerfect || gameState.mode !== 'single') return;
+
+    const targetTaskId = gameState.difficulty === 'junior' ? 6 : 7;
+    const targetTask = gameState.dailyTasks.find(t => t.id === targetTaskId);
+
+    if (gameState.difficulty === 'junior') {
+        addDailyTaskProgress(3, 1, gameState.currentChapterKey);
+    } else if (gameState.difficulty === 'senior') {
+        addDailyTaskProgress(4, 1, gameState.currentChapterKey);
+    }
+
+    if (targetTask && targetTask.targetKey === gameState.currentChapterKey) {
+        addDailyTaskProgress(targetTaskId);
+    }
+}
+
 function endGame() {
     const isDead = gameState.user.hp <= 0;
     const isTooManyWrong = gameState.wrongCount > (gameState.pool.length / 2);
@@ -130,6 +169,8 @@ function endGame() {
                 if (gameState.stats.randomWinCount >= 10) checkAndUnlock("ach_25");
             }
         }
+
+        updateDailyTasksAfterBattle(isFail, isPerfect);
     }
 
     gameState.chapterLastPlayed[gameState.mode === 'single' ? gameState.currentChapterKey : 'mix'] = new Date().getTime();
@@ -156,13 +197,13 @@ function endGame() {
     gameState.pool.forEach(q => {
         const attempts = gameState.history.filter(h => h.q.id === q.id);
         const tr = document.createElement("tr");
-        let userAnsCell = `<td style="color:gray;">未作答</td>`;
+        let userAnsCell = `<td class="res-not-answered">未作答</td>`;
         
         if (attempts.length > 0) {
             let chainHtml = attempts.map((a, i) => {
-                let color = a.isCorrect ? 'var(--hp-green)' : 'var(--primary-red)';
-                let arrow = (i < attempts.length - 1) ? '<span style="color:black; margin:0 5px;">&gt;</span>' : '';
-                return `<span style="color:${color}; font-weight:bold;">${a.userAns}</span>${arrow}`;
+                let cls = a.isCorrect ? 'res-chain-correct' : 'res-chain-wrong';
+                let arrow = (i < attempts.length - 1) ? '<span class="res-chain-arrow">&gt;</span>' : '';
+                return `<span class="${cls}">${a.userAns}</span>${arrow}`;
             }).join("");
             userAnsCell = `<td>${chainHtml}</td>`;
         }
@@ -199,7 +240,7 @@ function endGame() {
     const existingLimit = resultContainer.querySelector(".stat-coin-limit");
     if(existingLimit) existingLimit.remove();
 
-    const tableContainer = document.querySelector("#screen-result > div[style*='overflow-y:auto']");
+    const tableContainer = document.querySelector("#screen-result .result-table-shell");
     
     const tipDiv = document.createElement("div");
     tipDiv.className = "result-tip-bubble";
@@ -226,11 +267,11 @@ function endGame() {
     
     tableContainer.parentNode.insertBefore(tipDiv, tableContainer.nextSibling);
 
-    const btnContainer = document.querySelector("#screen-result > div[style*='display:flex']");
+    const btnContainer = document.querySelector("#screen-result .result-actions");
     if(btnContainer) {
         btnContainer.innerHTML = `
-            <button class="btn-main" style="background:var(--primary-red); flex:1; margin:0;" onclick="resetChapterSelectionUI(); backToChapterSelection()">繼續挑戰！</button>
-            <button class="btn-main" style="background:#7f8c8d; flex:1; margin:0;" onclick="backToMenuFromEnd()">返回主目錄</button>
+            <button class="btn-main btn-result-primary" data-action="result-continue">繼續挑戰！</button>
+            <button class="btn-main btn-result-secondary" data-action="back-menu-from-end">返回主目錄</button>
         `;
     }
 }

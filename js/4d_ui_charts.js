@@ -12,12 +12,12 @@ function closeStatsModal() {
 function calculateStats() {
     const db = window.questionsDB || {};
     const mapping = [
-        {name: "唐詩三首", keys: ["p_yuexia", "p_denglou", "p_shanju"]}, 
-        {name: "儒家思想", keys: ["p_lunren", "p_fish", "p_quanxue", "p_shishuo"]}, 
+        {name: "唐詩三首", keys: ["p_shanshu", "p_yuexia", "p_denglou"]}, 
+        {name: "儒家思想", keys: ["p_lunyu", "p_mengzi", "p_quanxue", "p_shishuo"]}, 
         {name: "記遊", keys: ["p_yueyang", "p_xishan"]}, 
-        {name: "宋詞三首", keys: ["p_niannu", "p_shengsheng", "p_qingyu"]}, 
+        {name: "宋詞三首", keys: ["p_niannu", "p_shengman", "p_qinyuan"]}, 
         {name: "道家思想", keys: ["p_xiaoyao"]},
-        {name: "政論史傳", keys: ["p_liuguo", "p_chushi", "p_lianpo"]}
+        {name: "政論文章", keys: ["p_liuguo", "p_chushi", "p_lianpo"]}
     ];
 
     let stats = [];

@@ -28,7 +28,7 @@ let gameState = {
     mixSelectedKeys: [],
     wrongGuesses: [],
     unlockedAchievements: [],
-    chapterLastPlayed: {}, 
+    chapterLastPlayed: {},
     chapterFirstPerfect: {},
     collectionDates: {},
     isRandomSelection: false,
@@ -42,7 +42,7 @@ let inputLock = false;
 let pokedexTimer = null;
 let pokedexSeconds = 0;
 
-function saveGame() {
+async function saveGame() {
     if (window.godModeActive) return;
     gameState.lastSaveTime = Date.now();
     const data = {
@@ -63,7 +63,23 @@ function saveGame() {
         lastSaveTime: gameState.lastSaveTime,
         dailyPlayTime: gameState.dailyPlayTime
     };
-    localStorage.setItem("dbs_dragon_save_v3", btoa(encodeURIComponent(JSON.stringify(data))));
+    const json = JSON.stringify(data);
+    localStorage.setItem("dbs_dragon_save_v3", btoa(encodeURIComponent(json)));
+
+    if (gameState.user.studentId) {
+        try {
+            await fetch('/.netlify/functions/student_data', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    student_id: gameState.user.studentId,
+                    game_data: json
+                })
+            });
+        } catch (e) {
+            console.error("Cloud save failed:", e);
+        }
+    }
 }
 
 function loadGame() {
@@ -87,7 +103,7 @@ function applyGameData(parsed) {
     if (typeof gameState.user.unlockedReplayXP === 'undefined') gameState.user.unlockedReplayXP = false;
     if (typeof gameState.user.coins === 'undefined') gameState.user.coins = 50;
     if (typeof gameState.user.inventorySlots === 'undefined') gameState.user.inventorySlots = 5;
-    
+
     gameState.stats = parsed.stats || {};
     ['totalCorrect', 'srCorrect', 'consecutivePerfect', 'mixWinCount', 'mixWinCount5',
      'mixWinCount10', 'mixWinCount16', 'mixPerfect16', 'randomWinCount', 'totalStudyMins',
@@ -113,13 +129,13 @@ function applyGameData(parsed) {
     gameState.dailyWinCounts = parsed.dailyWinCounts || { date: "", counts: {} };
     gameState.lastSaveTime = parsed.lastSaveTime || 0;
     gameState.dailyPlayTime = parsed.dailyPlayTime || 0;
-    
+
     if(typeof updateUserDisplay === 'function') updateUserDisplay();
 }
 
 function checkAchievements() {
     if (typeof window.questionsDB === 'undefined') return;
-    
+
     const db = window.questionsDB || {};
     const u = gameState.user;
     const s = gameState.stats;
@@ -138,7 +154,7 @@ function checkAchievements() {
     check(s.totalPlayTime >= 60, "ach_4");
     check(s.totalPlayTime >= 999, "ach_5");
     check(gameState.masteredChapters.length > 0, "ach_6");
-    
+
     let jrCount = 0, srCount = 0, bothCount = 0;
     Object.keys(db).forEach(k => {
         const jr = gameState.masteredChapters.includes(k+'_junior');
@@ -180,7 +196,7 @@ function checkAchievements() {
     check(s.energyRecovered >= 600, "ach_39");
 
     let unlockedCount = unlocked.length + newUnlock.length;
-    if (unlocked.includes("ach_40")) unlockedCount--; 
+    if (unlocked.includes("ach_40")) unlockedCount--;
     if (newUnlock.includes("ach_40")) unlockedCount--;
 
     if (unlockedCount >= 39) {

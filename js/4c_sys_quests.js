@@ -49,12 +49,12 @@ function renderDailyTasks() {
         }
         
         row.innerHTML = `
-            <div class="task-main">
+            <div style="display:flex; flex-direction:column;">
                 <span class="task-desc">${descText}</span>
                 <span class="task-reward-info">獎勵: ${quest.reward} 金幣</span>
-                <span class="task-progress">進度: ${userState.progress}/${quest.target}</span>
+                <span style="font-size:0.8rem; color:#7f8c8d;">進度: ${userState.progress}/${quest.target}</span>
             </div>
-            <button class="${btnClass}" ${disabled} data-action="claim-task" data-task-id="${quest.id}">${btnText}</button>
+            <button class="${btnClass}" ${disabled} onclick="claimTaskReward(${quest.id})">${btnText}</button>
         `;
         container.appendChild(row);
     });

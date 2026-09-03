@@ -132,37 +132,6 @@
     transition: all 0.3s ease;
     opacity: 0.9;
 }
-.daily-list {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    overflow-x: hidden;
-    border: none;
-    padding: 10px 5px;
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-.daily-list .task-row {
-    margin-bottom: 0;
-    flex-shrink: 0;
-}
-.task-main {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    flex: 1;
-    text-align: left;
-}
-.task-progress {
-    font-size: 0.8rem;
-    color: #7f8c8d;
-    -webkit-text-stroke: 0.8px white;
-    paint-order: stroke fill;
-}
 .task-row:hover {
     transform: translateX(2px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.15);

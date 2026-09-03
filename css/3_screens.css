@@ -222,61 +222,41 @@ h2, h3 {
     display: none;
     flex-direction: column;
     height: 100%;
-    padding: 8px 12px 10px;
+    padding: 10px;
     overflow-y: auto;
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
     background-color: rgba(255, 255, 255, 0.2);
-    background-blend-mode: overlay;
-    gap: 6px;
+    background-blend-mode: overlay; 
 }
 #screen-game.active {
     display: flex;
 }
 .boss-area {
     width: 100%;
-    flex: 0 1 clamp(170px, 30vh, 280px);
+    flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
+    justify-content: center;
     align-items: center;
-    margin: 0 0 4px;
+    margin-bottom: 10px;
     position: relative;
     z-index: 10;
     flex-shrink: 1;
     overflow: visible;
-    min-height: clamp(160px, 28vh, 250px);
-    isolation: isolate;
-}
-#screen-game .boss-area {
-    margin-top: 0;
-    padding-top: 8px;
-}
-.boss-area::before {
-    content: "";
-    position: absolute;
-    left: 50%;
-    bottom: 0;
-    width: min(58vw, 430px);
-    height: 28%;
-    transform: translateX(-50%);
-    border-radius: 50%;
-    background: radial-gradient(ellipse, rgba(25,38,86,0.28) 0%, rgba(25,38,86,0.16) 42%, transparent 72%);
-    filter: blur(6px);
-    z-index: 0;
+    min-height: 180px;
 }
 .boss-img {
-    height: clamp(150px, 28vh, 255px);
-    width: min(72vw, 470px);
+    height: 35vh;
+    width: 50vh;
     max-width: 100%;
     object-fit: contain;
     animation: float 3s ease-in-out infinite;
     border: none;
-    filter: drop-shadow(0 18px 18px rgba(0,0,0,0.25));
+    filter: none;
     transition: all 0.2s;
     z-index: 10;
-    transform-origin: center bottom;
 }
 .glass-panel {
     background: rgba(255, 255, 255, 0.9);
@@ -289,24 +269,6 @@ h2, h3 {
     box-sizing: border-box;
     z-index: 15;
     flex-shrink: 0;
-}
-
-@media screen and (max-height: 720px) {
-    #screen-game {
-        gap: 4px;
-        padding-top: 6px;
-    }
-    .boss-area {
-        flex-basis: clamp(140px, 25vh, 210px);
-        min-height: clamp(135px, 24vh, 200px);
-    }
-    .boss-img {
-        height: clamp(130px, 24vh, 200px);
-        width: min(68vw, 390px);
-    }
-    .glass-panel {
-        padding: 12px;
-    }
 }
 
 .battle-chapter-name {
@@ -351,18 +313,18 @@ h2, h3 {
 .crack-stage-3 { border-color: #d35400; border-style: double; border-width: 4px; transform: rotate(1deg); }
 .crack-stage-4 { border-color: #c0392b; border-style: groove; border-width: 5px; transform: rotate(-2deg); background: rgba(255, 240, 240, 0.8); }
 .crack-stage-5 { border-color: #ff0000; border-style: ridge; border-width: 6px; transform: rotate(2deg); background: rgba(255, 230, 230, 0.8); }
-.poem-line {
-    font-size: 1.3rem;
-    margin-bottom: 10px;
-    font-family: 'Kaiti', 'STKaiti', serif;
+.poem-line { 
+    font-size: 1.3rem; 
+    margin-bottom: 10px; 
+    font-family: 'Kaiti', 'STKaiti', serif; 
     -webkit-text-stroke: 0.8px white;
     paint-order: stroke fill;
 }
-.target-word {
-    color: var(--primary-red);
-    font-weight: bold;
-    font-size: 1.4rem;
-    margin: 0 5px;
+.target-word { 
+    color: var(--primary-red); 
+    font-weight: bold; 
+    font-size: 1.4rem; 
+    margin: 0 5px; 
     -webkit-text-stroke: 0.8px white;
     paint-order: stroke fill;
 }
@@ -398,20 +360,16 @@ h2, h3 {
     .mc-btn:hover:not(:disabled) { background: var(--primary-blue); color: white; }
 }
 .mc-btn:disabled { background: #e0e0e0; color: #aaa; border-color: #ccc; cursor: not-allowed; transform: none; }
-.error-msg {
-    color: var(--primary-red);
-    margin-top: 5px;
-    font-weight: bold;
-    min-height: 20px;
+.error-msg { 
+    color: var(--primary-red); 
+    margin-top: 5px; 
+    font-weight: bold; 
+    min-height: 20px; 
     font-size: 0.9rem;
     -webkit-text-stroke: 0.8px white;
     paint-order: stroke fill;
 }
 .game-footer-btn { margin-bottom: 0; margin-top: 15px; width: 100%; text-align: center; padding-top: 0; flex-shrink: 0; }
-#screen-game .game-footer-btn {
-    margin-top: 8px;
-    margin-bottom: 0;
-}
 #screen-result {
     background-position: center;
     background-repeat: no-repeat;
@@ -461,15 +419,15 @@ h2, h3 {
     -webkit-text-stroke: 0.8px white;
     paint-order: stroke fill;
 }
-.res-wrong {
-    color: var(--primary-red);
-    font-weight: bold;
+.res-wrong { 
+    color: var(--primary-red); 
+    font-weight: bold; 
     -webkit-text-stroke: 0.8px white;
     paint-order: stroke fill;
 }
-.res-correct {
-    color: var(--hp-green);
-    font-weight: bold;
+.res-correct { 
+    color: var(--hp-green); 
+    font-weight: bold; 
     -webkit-text-stroke: 0.8px white;
     paint-order: stroke fill;
 }
@@ -690,7 +648,7 @@ h2, h3 {
     bottom: 60px;
     right: 20px;
     z-index: 10000;
-    display: none;
+    display: flex;
     flex-direction: row;
     align-items: center;
     gap: 15px;
@@ -841,7 +799,7 @@ h2, h3 {
     height: 26px;
     border-radius: 4px;
     overflow: hidden;
-    margin-bottom: 0;
+    margin-bottom: 0; 
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     font-size: 0.55rem;
     font-weight: bold;

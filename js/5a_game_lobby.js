@@ -146,6 +146,8 @@ async function handleLogin() {
     setTimeout(() => {
         resetMenu();
         switchScreen("screen-menu");
+        const floatMenu = document.getElementById('floatingMenuContainer');
+        if (floatMenu) floatMenu.style.display = 'flex';
     }, 10);
 }
 

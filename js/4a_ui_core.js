@@ -86,6 +86,8 @@ function switchScreen(id) {
     const target = document.getElementById(id);
     if(target) target.classList.add('active');
 
+    updateFloatingMenuVisibility(id);
+
     if (id === 'screen-menu') {
         smeltSlots = [null, null, null, null];
     }
@@ -116,6 +118,18 @@ function switchScreen(id) {
     }
 
     if (id === 'screen-menu') checkAchievements();
+}
+
+function updateFloatingMenuVisibility(id) {
+    const floatMenu = document.getElementById('floatingMenuContainer');
+    if (!floatMenu) return;
+    const shouldHide = (id === 'screen-login' || id === 'screen-loading');
+    floatMenu.style.display = shouldHide ? 'none' : 'flex';
+    // Safety re-check in case something else touches the DOM in the same tick
+    setTimeout(() => {
+        const fm = document.getElementById('floatingMenuContainer');
+        if (fm) fm.style.display = shouldHide ? 'none' : 'flex';
+    }, 50);
 }
 
 function updateUserDisplay() {

@@ -1,22 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const floatMenu = document.getElementById('floatingMenuContainer');
-    const screenObserver = new MutationObserver(() => {
-        const login = document.getElementById('screen-login');
-        const loading = document.getElementById('screen-loading');
-        if (floatMenu) {
-            if ((login && login.classList.contains('active')) || (loading && loading.classList.contains('active'))) {
-                floatMenu.style.display = 'none';
-            } else {
-                floatMenu.style.display = 'flex';
-            }
-        }
-    });
-    const config = { attributes: true, attributeFilter: ['class'] };
-    const loginEl = document.getElementById('screen-login');
-    const loadingEl = document.getElementById('screen-loading');
-    if (loginEl) screenObserver.observe(loginEl, config);
-    if (loadingEl) screenObserver.observe(loadingEl, config);
-
     loadGame();
     preloadAssets(() => {
         const backdrop = document.createElement("div");

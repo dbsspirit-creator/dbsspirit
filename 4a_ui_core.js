@@ -86,15 +86,6 @@ function switchScreen(id) {
     const target = document.getElementById(id);
     if(target) target.classList.add('active');
 
-    const floatMenu = document.getElementById('floatingMenuContainer');
-    if (floatMenu) {
-        if (id === 'screen-login' || id === 'screen-loading') {
-            floatMenu.style.display = 'none';
-        } else {
-            floatMenu.style.display = 'flex';
-        }
-    }
-
     if (id === 'screen-menu') {
         smeltSlots = [null, null, null, null];
     }

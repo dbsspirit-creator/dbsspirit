@@ -80,6 +80,13 @@ document.addEventListener('click', () => {
     if(bgmSlider) bgmSlider.style.display = 'none';
     if(sfxSlider) sfxSlider.style.display = 'none';
 });
+function updateVolFill(input) {
+    if (!input) return;
+    // value 0~1 → percentage for CSS gradient fill (from bottom)
+    const pct = (parseFloat(input.value) * 100) + '%';
+    input.style.setProperty('--vol-fill', pct);
+}
+
 function initAudioSliders() {
     const bgmInput = document.getElementById('bgmVolume');
     const sfxInput = document.getElementById('sfxVolume');
@@ -92,8 +99,10 @@ function initAudioSliders() {
         sfxSliderContainer.addEventListener('click', (e) => e.stopPropagation());
     }
     if(bgmInput) {
+        updateVolFill(bgmInput); // init fill
         bgmInput.addEventListener('input', (e) => {
             bgmVolumeLevel = parseFloat(e.target.value);
+            updateVolFill(e.target);
             isMusicOn = bgmVolumeLevel > 0;
             const btn = document.getElementById('btnBGM');
             if(isMusicOn) {
@@ -109,8 +118,10 @@ function initAudioSliders() {
         });
     }
     if(sfxInput) {
+        updateVolFill(sfxInput); // init fill
         sfxInput.addEventListener('input', (e) => {
             sfxVolumeLevel = parseFloat(e.target.value);
+            updateVolFill(e.target);
             isSFXEnabled = sfxVolumeLevel > 0;
             const btn = document.getElementById('btnSFX');
             if(isSFXEnabled) {

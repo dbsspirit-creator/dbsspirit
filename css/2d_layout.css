@@ -548,6 +548,7 @@ select.form-input {
     cursor: pointer;
 }
 
+
 #bgmVolume.vol-slider,
 #sfxVolume.vol-slider,
 .vol-slider {
@@ -559,8 +560,6 @@ select.form-input {
     height: 8px !important;
 }
 
-.audio-slider-wrapper:hover .volume-slider-container,
-.audio-slider-wrapper:active .volume-slider-container,
-.audio-slider-wrapper:focus-within .volume-slider-container {
+#floatingSubMenu.visible .volume-slider-container {
     display: flex !important;
 }

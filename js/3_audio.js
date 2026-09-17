@@ -43,6 +43,44 @@ Object.values(audioFiles).forEach(a => {
 let isMusicOn = true;
 let isSFXEnabled = true;
 let currentBGM = null;
+let bgmVolumeLevel = 1;
+let sfxVolumeLevel = 1;
+
+function applyBgmVolume() {
+    Object.keys(audioFiles).forEach(key => {
+        if (key.startsWith('bgm_') || key === 'theme') {
+            audioFiles[key].volume = isMusicOn ? bgmVolumeLevel : 0;
+        }
+    });
+    if (currentBGM) {
+        currentBGM.volume = isMusicOn ? bgmVolumeLevel : 0;
+    }
+}
+
+function applySfxVolume() {
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const bgmSlider = document.getElementById("bgmVolume");
+    const sfxSlider = document.getElementById("sfxVolume");
+    if (bgmSlider) {
+        bgmSlider.value = bgmVolumeLevel;
+        bgmSlider.addEventListener("input", () => {
+            bgmVolumeLevel = parseFloat(bgmSlider.value);
+            applyBgmVolume();
+            bgmSlider.style.setProperty("--vol-fill", (bgmVolumeLevel * 100) + "%");
+        });
+        bgmSlider.style.setProperty("--vol-fill", "100%");
+    }
+    if (sfxSlider) {
+        sfxSlider.value = sfxVolumeLevel;
+        sfxSlider.addEventListener("input", () => {
+            sfxVolumeLevel = parseFloat(sfxSlider.value);
+            sfxSlider.style.setProperty("--vol-fill", (sfxVolumeLevel * 100) + "%");
+        });
+        sfxSlider.style.setProperty("--vol-fill", "100%");
+    }
+});
 
 document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
@@ -62,12 +100,14 @@ function toggleMusic() {
     
     if (isMusicOn) {
         btn.classList.remove('off');
+        applyBgmVolume();
         if (currentBGM) {
             currentBGM.play().catch(e=>{});
         }
     } else {
         btn.classList.add('off');
         if (currentBGM) currentBGM.pause();
+        applyBgmVolume();
     }
 }
 
@@ -114,6 +154,7 @@ function playMusic(type) {
     currentBGM = target;
     
     if (isMusicOn && currentBGM) {
+        currentBGM.volume = bgmVolumeLevel;
         const playPromise = currentBGM.play();
         if (playPromise !== undefined) {
             playPromise.catch(error => {
@@ -139,7 +180,7 @@ function playSFX(name) {
     const sfx = audioFiles[name];
     if (sfx) {
         const clone = sfx.cloneNode();
-        clone.volume = 0.8;
+        clone.volume = sfxVolumeLevel;
         clone.play().catch(e => {});
     }
 }

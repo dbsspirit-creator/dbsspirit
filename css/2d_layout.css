@@ -478,8 +478,10 @@ select.form-input {
 .volume-slider-container {
     position: absolute;
     bottom: 55px;
-    left: 50%;
-    margin-left: -18px;
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
     width: 36px;
     height: 140px;
     background: #ffffff;

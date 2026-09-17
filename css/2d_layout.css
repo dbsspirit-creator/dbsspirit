@@ -558,14 +558,9 @@ select.form-input {
     width: 120px !important;
     height: 8px !important;
 }
-.volume-slider-container {
-    display: none;
-}
-.volume-slider-container[style*="display: flex"],
-.volume-slider-container[style*="display:flex"],
-.volume-slider-container[style*="display: block"],
-.volume-slider-container[style*="display:block"] {
+
+.audio-slider-wrapper:hover .volume-slider-container,
+.audio-slider-wrapper:active .volume-slider-container,
+.audio-slider-wrapper:focus-within .volume-slider-container {
     display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
 }

@@ -560,6 +560,3 @@ select.form-input {
     height: 8px !important;
 }
 
-#floatingSubMenu.visible .volume-slider-container {
-    display: flex !important;
-}

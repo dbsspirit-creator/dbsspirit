@@ -478,6 +478,8 @@ select.form-input {
 .volume-slider-container {
     position: absolute;
     bottom: 55px;
+    left: 50%;
+    margin-left: -18px;
     width: 36px;
     height: 160px;
     background: #ffffff;
@@ -490,6 +492,7 @@ select.form-input {
     z-index: 10005;
     border: 3px solid #3b82f6;
     animation: fadeIn 0.2s ease-out;
+    overflow: visible;
 }
 .vol-slider {
     -webkit-appearance: none;
@@ -501,8 +504,10 @@ select.form-input {
     cursor: pointer;
     background: transparent;
     outline: none;
-    transform: rotate(-90deg);
-    transform-origin: center;
+    transform: rotate(-90deg) !important;
+    -webkit-transform: rotate(-90deg) !important;
+    transform-origin: center center !important;
+    -webkit-transform-origin: center center !important;
 }
 /* WebKit track + thumb */
 .vol-slider::-webkit-slider-runnable-track {

@@ -119,8 +119,8 @@ let lastSfxClick = 0;
 function hideAllVolumeSliders() {
     const bgmC = document.getElementById("bgmSliderContainer");
     const sfxC = document.getElementById("sfxSliderContainer");
-    if (bgmC) bgmC.style.display = "none";
-    if (sfxC) sfxC.style.display = "none";
+    if (bgmC) bgmC.style.setProperty("display", "none", "important");
+    if (sfxC) sfxC.style.setProperty("display", "none", "important");
     bgmSliderVisible = false;
     sfxSliderVisible = false;
 }
@@ -133,7 +133,7 @@ function toggleMusic(e) {
     if (!container) return;
 
     if (now - lastBgmClick < 350) {
-        container.style.display = "none";
+        container.style.setProperty("display", "none", "important");
         bgmSliderVisible = false;
         lastBgmClick = 0;
         return;
@@ -141,11 +141,11 @@ function toggleMusic(e) {
     lastBgmClick = now;
 
     if (bgmSliderVisible) {
-        container.style.display = "none";
+        container.style.setProperty("display", "none", "important");
         bgmSliderVisible = false;
     } else {
         hideAllVolumeSliders();
-        container.style.display = "flex";
+        container.style.setProperty("display", "flex", "important");
         bgmSliderVisible = true;
     }
 }
@@ -158,7 +158,7 @@ function toggleSFX(e) {
     if (!container) return;
 
     if (now - lastSfxClick < 350) {
-        container.style.display = "none";
+        container.style.setProperty("display", "none", "important");
         sfxSliderVisible = false;
         lastSfxClick = 0;
         return;
@@ -166,11 +166,11 @@ function toggleSFX(e) {
     lastSfxClick = now;
 
     if (sfxSliderVisible) {
-        container.style.display = "none";
+        container.style.setProperty("display", "none", "important");
         sfxSliderVisible = false;
     } else {
         hideAllVolumeSliders();
-        container.style.display = "flex";
+        container.style.setProperty("display", "flex", "important");
         sfxSliderVisible = true;
     }
 }

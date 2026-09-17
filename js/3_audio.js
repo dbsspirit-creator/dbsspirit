@@ -67,8 +67,19 @@ document.addEventListener("DOMContentLoaded", () => {
         bgmSlider.value = bgmVolumeLevel;
         bgmSlider.addEventListener("input", () => {
             bgmVolumeLevel = parseFloat(bgmSlider.value);
+            isMusicOn = bgmVolumeLevel > 0;
             applyBgmVolume();
             bgmSlider.style.setProperty("--vol-fill", (bgmVolumeLevel * 100) + "%");
+            const btn = document.getElementById("btnBGM");
+            if (btn) {
+                if (isMusicOn) btn.classList.remove("off");
+                else btn.classList.add("off");
+            }
+            if (isMusicOn && currentBGM && currentBGM.paused) {
+                currentBGM.play().catch(e => {});
+            } else if (!isMusicOn && currentBGM) {
+                currentBGM.pause();
+            }
         });
         bgmSlider.style.setProperty("--vol-fill", "100%");
     }
@@ -76,7 +87,13 @@ document.addEventListener("DOMContentLoaded", () => {
         sfxSlider.value = sfxVolumeLevel;
         sfxSlider.addEventListener("input", () => {
             sfxVolumeLevel = parseFloat(sfxSlider.value);
+            isSFXEnabled = sfxVolumeLevel > 0;
             sfxSlider.style.setProperty("--vol-fill", (sfxVolumeLevel * 100) + "%");
+            const btn = document.getElementById("btnSFX");
+            if (btn) {
+                if (isSFXEnabled) btn.classList.remove("off");
+                else btn.classList.add("off");
+            }
         });
         sfxSlider.style.setProperty("--vol-fill", "100%");
     }
@@ -94,30 +111,67 @@ document.addEventListener("visibilitychange", () => {
     }
 });
 
-function toggleMusic() {
-    isMusicOn = !isMusicOn;
-    const btn = document.getElementById('btnBGM');
-    
-    if (isMusicOn) {
-        btn.classList.remove('off');
-        applyBgmVolume();
-        if (currentBGM) {
-            currentBGM.play().catch(e=>{});
-        }
+let bgmSliderVisible = false;
+let sfxSliderVisible = false;
+let lastBgmClick = 0;
+let lastSfxClick = 0;
+
+function hideAllVolumeSliders() {
+    const bgmC = document.getElementById("bgmSliderContainer");
+    const sfxC = document.getElementById("sfxSliderContainer");
+    if (bgmC) bgmC.style.display = "none";
+    if (sfxC) sfxC.style.display = "none";
+    bgmSliderVisible = false;
+    sfxSliderVisible = false;
+}
+
+function toggleMusic(e) {
+    if (e) e.stopPropagation();
+    const now = Date.now();
+    const container = document.getElementById("bgmSliderContainer");
+    const btn = document.getElementById("btnBGM");
+    if (!container) return;
+
+    if (now - lastBgmClick < 350) {
+        container.style.display = "none";
+        bgmSliderVisible = false;
+        lastBgmClick = 0;
+        return;
+    }
+    lastBgmClick = now;
+
+    if (bgmSliderVisible) {
+        container.style.display = "none";
+        bgmSliderVisible = false;
     } else {
-        btn.classList.add('off');
-        if (currentBGM) currentBGM.pause();
-        applyBgmVolume();
+        hideAllVolumeSliders();
+        container.style.display = "flex";
+        bgmSliderVisible = true;
     }
 }
 
-function toggleSFX() {
-    isSFXEnabled = !isSFXEnabled;
-    const btn = document.getElementById('btnSFX');
-    if (isSFXEnabled) {
-        btn.classList.remove('off');
+function toggleSFX(e) {
+    if (e) e.stopPropagation();
+    const now = Date.now();
+    const container = document.getElementById("sfxSliderContainer");
+    const btn = document.getElementById("btnSFX");
+    if (!container) return;
+
+    if (now - lastSfxClick < 350) {
+        container.style.display = "none";
+        sfxSliderVisible = false;
+        lastSfxClick = 0;
+        return;
+    }
+    lastSfxClick = now;
+
+    if (sfxSliderVisible) {
+        container.style.display = "none";
+        sfxSliderVisible = false;
     } else {
-        btn.classList.add('off');
+        hideAllVolumeSliders();
+        container.style.display = "flex";
+        sfxSliderVisible = true;
     }
 }
 
